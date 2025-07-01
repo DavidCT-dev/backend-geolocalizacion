@@ -10,19 +10,12 @@ import { JornadaModule } from './jornada/jornada.module';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: '.env', 
-    }),
+    ConfigModule.forRoot({isGlobal:true}),
+    // MongooseModule.forRoot('mongodb+srv://ct55609:cI5cg4yJgDzvtil1@blog.pkkqspg.mongodb.net/geolocalizacion'),
+    MongooseModule.forRoot('mongodb://localhost/geolocalizacion'),
 
-    MongooseModule.forRoot(process.env.MONGODB_URI_CLOUD || '', {
-      connectionName: 'cloud',
-    }),
-
-    MongooseModule.forRoot(process.env.MONGODB_URI_LOCAL || '', {
-      connectionName: 'local',
-    }),
-
+     MongooseModule.forRoot(process.env.MONGODB_URI_CLOUD || 'mongodb://localhost/geolocalizacion'),
+    
     UserModule,
     AuthModule,
     RolesModule,
@@ -31,6 +24,8 @@ import { JornadaModule } from './jornada/jornada.module';
     JornadaModule,
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    
+  ],
 })
 export class AppModule {}
