@@ -4,20 +4,20 @@ FROM node:18-alpine
 # Crear carpeta app
 WORKDIR /app
 
-# Copiar package.json y package-lock.json para instalar dependencias
+# Copiar package.json y package-lock.json
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm install --production
+# Instalar dependencias sin las devDependencies
+RUN npm install --omit=dev --legacy-peer-deps
 
-# Copiar el resto de la app
+# Copiar el resto del código
 COPY . .
 
 # Construir el proyecto NestJS
 RUN npm run build
 
-# Puerto que exponemos
+# Exponer el puerto
 EXPOSE 3000
 
-# Comando para iniciar la app en producción
+# Comando para iniciar la app
 CMD ["node", "dist/main"]
