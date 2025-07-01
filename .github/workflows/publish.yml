@@ -33,6 +33,22 @@ jobs:
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
 
+      - name: Set Fly secrets from GitHub Secrets
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+          PORT: ${{ secrets.PORT }}
+          # WEBSERVICE_URL: ${{ secrets.WEBSERVICE_URL }}
+          MONGODB_URI_LOCAL: ${{ secrets.MONGODB_URI_LOCAL }}
+        run: |
+          flyctl secrets set \
+            JWT_SECRET="$JWT_SECRET" \
+            JWT_EXPIRES_IN="$JWT_EXPIRES_IN" \
+            PORT="$PORT" \
+            # WEBSERVICE_URL="$WEBSERVICE_URL" \
+            MONGODB_URI_LOCAL="$MONGODB_URI_LOCAL"
+
       - name: Deploy to Fly.io
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

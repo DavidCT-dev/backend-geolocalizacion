@@ -3,28 +3,32 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from 'src/user/schema/user.schema';
+import { Role, RoleSchema } from 'src/roles/schema/role.schema';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { Role, RoleSchema } from 'src/roles/schema/role.schema';
 
 @Module({
   imports: [
-      MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-      MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
-      JwtModule.registerAsync({
+    ConfigModule, // Asegura que esté disponible en este módulo
+
+    MongooseModule.forFeature([
+      { name: User.name, schema: UserSchema },
+      { name: Role.name, schema: RoleSchema },
+    ]),
+
+    JwtModule.registerAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        secret: 'secreto_super_secreto',
+        secret: configService.get<string>('JWT_SECRET') || 'default_secret',
         signOptions: {
           expiresIn: configService.get<string>('JWT_EXPIRES_IN') || '1d',
         },
       }),
-      inject: [ConfigService],
     }),
-
-    ],
+  ],
   controllers: [AuthController],
   providers: [AuthService],
-  exports: [JwtModule], 
+  exports: [JwtModule],
 })
 export class AuthModule {}
