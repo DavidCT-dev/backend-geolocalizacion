@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
-import { DecodedTokenDto, LoginAuthDto, RegisterAuthDto } from './dto/create-auth.dto';
+import { DecodedTokenDto, LoginAuthDto } from './dto/create-auth.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
-import { User, UserDocument } from 'src/user/schema/user.schema';
+import { User, UserDocument } from '../user/schema/user.schema';
 import { Model } from 'mongoose';
-import { Role, RoleDocument } from 'src/roles/schema/role.schema';
+import { Role, RoleDocument } from '../roles/schema/role.schema';
 
 @Injectable()
 export class AuthService {
