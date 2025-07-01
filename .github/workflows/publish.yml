@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-test-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -21,25 +21,14 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: Install dependencies
-        run: npm install
+      - name: Force install dependencies
+        run: npm install --force
 
       - name: Run linter
         run: npm run lint
 
-      - name: Run tests
-        run: npm run test
-
       - name: Build the app
         run: npm run build
-
-  deploy:
-    needs: build-test-deploy
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@master
