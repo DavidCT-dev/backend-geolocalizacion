@@ -1,26 +1,23 @@
-# Establece la versión de Node.js
-ARG NODE_VERSION=18.12.1
+# Usa Node oficial LTS
+FROM node:18-alpine
 
-# Usa una imagen base ligera de Node.js
-FROM node:${NODE_VERSION}-slim AS base
-
-# Establece el directorio de trabajo dentro del contenedor
+# Crear carpeta app
 WORKDIR /app
 
-# Copia los archivos de configuración de dependencias
-COPY package.json package-lock.json ./
+# Copiar package.json y package-lock.json para instalar dependencias
+COPY package*.json ./
 
-# Instala las dependencias con manejo de conflictos
-RUN npm install --legacy-peer-deps
+# Instalar dependencias
+RUN npm install --production
 
-# Copia el resto del código fuente
+# Copiar el resto de la app
 COPY . .
 
-# Compila la aplicación (si aplica)
+# Construir el proyecto NestJS
 RUN npm run build
 
-# Expone el puerto
+# Puerto que exponemos
 EXPOSE 3000
 
-# Comando para ejecutar
-CMD [ "npm", "run", "start:dev" ]
+# Comando para iniciar la app en producción
+CMD ["node", "dist/main"]
