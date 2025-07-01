@@ -9,6 +9,7 @@ import { AuthService } from '../auth/auth.service'
 import { Role, RoleDocument } from 'src/roles/schema/role.schema';
 import { ConfigurationApk, ConfigurationApkDocument } from './schema/configuration-apk.schema';
 import { sendMailerVerificationLink } from 'src/helpers/sendEmail';
+import { Jornada, JornadaDocument } from 'src/jornada/schema/jornada.schema';
 
 @Injectable()
 export class UserService {
@@ -17,8 +18,9 @@ export class UserService {
     @InjectModel(Role.name) private rolModel: Model<RoleDocument>,
     @InjectModel(RegistroPasajeros.name) private registroPasajerosModel: Model<RegistroPasajerosDocument>,
     private readonly authService: AuthService,
-
     @InjectModel(ConfigurationApk.name) private configurationApkModel: Model<ConfigurationApkDocument>,
+    @InjectModel(Jornada.name) private jornadaModel: Model<JornadaDocument>,
+
 
     // private readonly authService: AuthService
 
@@ -44,7 +46,7 @@ export class UserService {
       });
 
     }
-    return('✅ Usuario admin creado y asignado al rol "administrador"');
+    return ('✅ Usuario admin creado y asignado al rol "administrador"');
 
   }
 
@@ -59,7 +61,7 @@ export class UserService {
     }
 
     const existingUserci = await this.userModel.findOne({ ci });
-    if (existingUserci){
+    if (existingUserci) {
       throw new BadRequestException('El CI ya esta registrado');
     }
 
@@ -79,14 +81,14 @@ export class UserService {
 
     const send = await sendMailerVerificationLink(
       email,
-    `${process.env.WEBSERVICE_URL}?token=${authetication}`    
-  );
+      `${process.env.WEBSERVICE_URL}?token=${authetication}`
+    );
 
 
     if (!send) {
       throw new BadRequestException('Error al verificar email');
     }
-   
+
 
     return newUser.save();
   }
@@ -262,37 +264,59 @@ export class UserService {
   }
 
   async confirmPassword(data: { token: string; password: string }) {
-  const { token, password } = data;
+    const { token, password } = data;
 
-  // Verificar y decodificar el token
-  const decoded = await this.authService.verificarToken(token);
-  if (!decoded || !decoded.id) {
-    throw new UnauthorizedException('Token inválido o expirado');
+    // Verificar y decodificar el token
+    const decoded = await this.authService.verificarToken(token);
+    if (!decoded || !decoded.id) {
+      throw new UnauthorizedException('Token inválido o expirado');
+    }
+
+    // Buscar usuario
+    const user = await this.userModel.findById(decoded.id);
+    if (!user) {
+      throw new NotFoundException('Usuario no encontrado');
+    }
+
+    // Validar que la contraseña cumpla ciertos criterios (opcional)
+    if (password.length < 8) {
+      throw new BadRequestException('La contraseña debe tener al menos 8 caracteres');
+    }
+
+    // Hashear la nueva contraseña
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user.password = hashedPassword;
+    user.state = true;
+
+    // Guardar cambios en la base de datos
+    await user.save();
+
+    return { message: 'Contraseña actualizada correctamente' };
   }
-
-  // Buscar usuario
-  const user = await this.userModel.findById(decoded.id);
-  if (!user) {
-    throw new NotFoundException('Usuario no encontrado');
-  }
-
-  // Validar que la contraseña cumpla ciertos criterios (opcional)
-  if (password.length < 8) {
-    throw new BadRequestException('La contraseña debe tener al menos 8 caracteres');
-  }
-
-  // Hashear la nueva contraseña
-  const hashedPassword = await bcrypt.hash(password, 10);
-  user.password = hashedPassword;
-  user.state = true;
-
-  // Guardar cambios en la base de datos
-  await user.save();
-
-  return { message: 'Contraseña actualizada correctamente' };
-}
 
   async findAllRegistro(userId: string) {
     return this.registroPasajerosModel.find({ userId, deleted: false }).exec();
+  }
+
+
+  async getAllReports(month: string, conductorId?: string) {
+    const startDate = new Date(month)
+    const endDate = new Date(new Date(startDate).setMonth(startDate.getMonth() + 1)) 
+
+    const query: any = {
+      fecha: {
+        $gte: startDate,
+        $lt: endDate
+      }
+    };
+
+    if (conductorId) {
+      query.conductorId = conductorId;
+    }
+
+    return this.jornadaModel.find(query)
+      .populate('conductorId', 'nombre ci vehiculo matricula')
+      .populate('lineaId', 'nombre')
+      .sort({ fecha: 1 });
   }
 }

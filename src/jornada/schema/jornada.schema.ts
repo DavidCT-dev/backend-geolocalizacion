@@ -11,7 +11,7 @@ export class Jornada {
   @Prop({ type: Types.ObjectId, ref: 'Ruta', required: true })
   lineaId: Types.ObjectId;
 
-  @Prop({ type: Date, required: true }) // cambiar de String a Date
+  @Prop({ type: Date, required: true }) 
   fecha: Date;
 
   @Prop({ 
@@ -27,6 +27,15 @@ export class Jornada {
   @Prop({ type: Number, default: 0 })
   horasTrabajadas: number;
   
+
+  @Prop({ type: Number, default: 0 })
+  numeroVueltas: number;
+
+    @Prop({ type: Date })
+  hora_inicio: Date;
+
+  @Prop({ type: Date })
+  hora_fin: Date;
 }
 
 export const JornadaSchema = SchemaFactory.createForClass(Jornada);

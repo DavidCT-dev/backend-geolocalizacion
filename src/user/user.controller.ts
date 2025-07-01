@@ -1,16 +1,16 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto, UpdateDriverDto, UpdatePasswordDto } from './dto/create-user.dto';
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('user') 
+@ApiTags('user')
 @Controller('api/user')
 export class UserController {
   constructor(
     private readonly userService: UserService,
   ) { }
 
-   @Get('default')
+  @Get('default')
   default() {
     return this.userService.defaultUser();
   }
@@ -69,13 +69,22 @@ export class UserController {
   configApk(@Param('id') id: string, @Body() config: { mostrar_parada: boolean, registro_viaje: boolean }) {
     return this.userService.configApk(id, config);
   }
-  @Get('config/:id') 
+  @Get('config/:id')
   getConfigApk(@Param('id') id: string) {
     return this.userService.getConfigApk(id);
   }
 
-  @Post('confirm-password') 
-  confirmPassword(@Body() data:{token:string, password:string}) {
+
+  @Post('confirm-password')
+  confirmPassword(@Body() data: { token: string, password: string }) {
     return this.userService.confirmPassword(data);
+  }
+
+  @Get('jornada')
+  async getReports(
+    @Query('month') month: string,
+    @Query('conductorId') conductorId?: string
+  ) {
+    return this.userService.getAllReports(month, conductorId);
   }
 }

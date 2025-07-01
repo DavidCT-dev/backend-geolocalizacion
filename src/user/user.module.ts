@@ -8,12 +8,14 @@ import { AuthModule } from 'src/auth/auth.module';
 import { Role, RoleSchema } from 'src/roles/schema/role.schema';
 import { ConfigurationApk, ConfigurationApkSchema } from './schema/configuration-apk.schema';
 import { RegistroPasajeros, RegistroPasajerosSchema } from './schema/registro-pasajeros';
+import { Jornada, JornadaSchema } from 'src/jornada/schema/jornada.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),        MongooseModule.forFeature([{ name: Role.name, schema: RoleSchema }]),
     MongooseModule.forFeature([{ name: RegistroPasajeros.name, schema: RegistroPasajerosSchema }]),
     MongooseModule.forFeature([{ name: ConfigurationApk.name, schema: ConfigurationApkSchema }]),
+    MongooseModule.forFeature([{ name: Jornada.name, schema: JornadaSchema }]),
     AuthModule
   ],
   controllers: [UserController],
