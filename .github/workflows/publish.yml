@@ -39,17 +39,72 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
           PORT: ${{ secrets.PORT }}
-          # WEBSERVICE_URL: ${{ secrets.WEBSERVICE_URL }}
           MONGODB_URI_LOCAL: ${{ secrets.MONGODB_URI_LOCAL }}
         run: |
           flyctl secrets set \
             JWT_SECRET="$JWT_SECRET" \
             JWT_EXPIRES_IN="$JWT_EXPIRES_IN" \
             PORT="$PORT" \
-            # WEBSERVICE_URL="$WEBSERVICE_URL" \
             MONGODB_URI_LOCAL="$MONGODB_URI_LOCAL"
 
       - name: Deploy to Fly.io
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: flyctl deploy --remote-only
+
+
+# name: Build and Deploy to Fly.io
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build-and-deploy:
+#     runs-on: ubuntu-latest
+#     strategy:
+#       matrix:
+#         node-version: [20.x]
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v3
+
+#       - name: Use Node.js ${{ matrix.node-version }}
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: ${{ matrix.node-version }}
+
+#       - name: Force install dependencies
+#         run: npm install --force
+
+#       - name: Run linter
+#         run: npm run lint
+
+#       - name: Build the app
+#         run: npm run build
+
+#       - name: Install Fly CLI
+#         uses: superfly/flyctl-actions/setup-flyctl@master
+
+#       - name: Set Fly secrets from GitHub Secrets
+#         env:
+#           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+#           JWT_SECRET: ${{ secrets.JWT_SECRET }}
+#           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
+#           PORT: ${{ secrets.PORT }}
+#           WEBSERVICE_URL: ${{ secrets.WEBSERVICE_URL }}
+#           MONGODB_URI_LOCAL: ${{ secrets.MONGODB_URI_LOCAL }}
+#         run: |
+#           flyctl secrets set \
+#             JWT_SECRET="$JWT_SECRET" \
+#             JWT_EXPIRES_IN="$JWT_EXPIRES_IN" \
+#             PORT="$PORT" \
+#             WEBSERVICE_URL="$WEBSERVICE_URL" \
+#             MONGODB_URI_LOCAL="$MONGODB_URI_LOCAL"
+
+#       - name: Deploy to Fly.io
+#         env:
+#           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
+#         run: flyctl deploy --remote-only
