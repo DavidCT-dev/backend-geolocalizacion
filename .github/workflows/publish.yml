@@ -39,13 +39,13 @@ jobs:
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
           JWT_EXPIRES_IN: ${{ secrets.JWT_EXPIRES_IN }}
           PORT: ${{ secrets.PORT }}
-          MONGODB_URI_LOCAL: ${{ secrets.MONGODB_URI_LOCAL }}
+          MONGODB_URI_CLOUD: ${{ secrets.MONGODB_URI_CLOUD }}
         run: |
           flyctl secrets set \
             JWT_SECRET="$JWT_SECRET" \
             JWT_EXPIRES_IN="$JWT_EXPIRES_IN" \
             PORT="$PORT" \
-            MONGODB_URI_LOCAL="$MONGODB_URI_LOCAL"
+            MONGODB_URI_CLOUD="$MONGODB_URI_CLOUD"
 
       - name: Deploy to Fly.io
         env:
