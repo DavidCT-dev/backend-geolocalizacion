@@ -3,12 +3,12 @@ import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './schema/user.schema';
-import { AuthService } from 'src/auth/auth.service';
-import { AuthModule } from 'src/auth/auth.module';
-import { Role, RoleSchema } from 'src/roles/schema/role.schema';
+import { AuthService } from '../auth/auth.service';
+import { AuthModule } from '../auth/auth.module';
+import { Role, RoleSchema } from '../roles/schema/role.schema';
 import { ConfigurationApk, ConfigurationApkSchema } from './schema/configuration-apk.schema';
 import { RegistroPasajeros, RegistroPasajerosSchema } from './schema/registro-pasajeros';
-import { Jornada, JornadaSchema } from 'src/jornada/schema/jornada.schema';
+import { Jornada, JornadaSchema } from '../jornada/schema/jornada.schema';
 
 @Module({
   imports: [

@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Ruta, RutaDocument } from './schema/ruta.schema';
 import { Model } from 'mongoose';
 import { Asignacion, AsignacionDocument } from './schema/asignacion.schema';
-import { Jornada, JornadaDocument } from 'src/jornada/schema/jornada.schema';
+import { Jornada, JornadaDocument } from '../jornada/schema/jornada.schema';
 
 @Injectable()
 export class RutasService {

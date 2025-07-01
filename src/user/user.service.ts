@@ -6,10 +6,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { User, UserDocument } from './schema/user.schema';
 import { Model } from 'mongoose';
 import { AuthService } from '../auth/auth.service'
-import { Role, RoleDocument } from 'src/roles/schema/role.schema';
+import { Role, RoleDocument } from '../roles/schema/role.schema';
 import { ConfigurationApk, ConfigurationApkDocument } from './schema/configuration-apk.schema';
-import { sendMailerVerificationLink } from 'src/helpers/sendEmail';
-import { Jornada, JornadaDocument } from 'src/jornada/schema/jornada.schema';
+import { sendMailerVerificationLink } from '../helpers/sendEmail';
+import { Jornada, JornadaDocument } from '../jornada/schema/jornada.schema';
 
 @Injectable()
 export class UserService {

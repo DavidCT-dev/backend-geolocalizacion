@@ -4,7 +4,7 @@ import { RutasController } from './rutas.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Ruta, RutaSchema } from './schema/ruta.schema';
 import { Asignacion, AsignacionSchema } from './schema/asignacion.schema';
-import { Jornada, JornadaSchema } from 'src/jornada/schema/jornada.schema';
+import { Jornada, JornadaSchema } from '../jornada/schema/jornada.schema';
 
 @Module({
    imports: [

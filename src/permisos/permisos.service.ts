@@ -1,10 +1,8 @@
-import { CreatePermisoDto } from './dto/create-permiso.dto';
-import { UpdatePermisoDto } from './dto/update-permiso.dto';
 import { Permiso, PermisoDocument } from './schema/permiso.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Injectable } from '@nestjs/common';
-import { Role, RoleDocument } from 'src/roles/schema/role.schema';
+import { Role, RoleDocument } from '../roles/schema/role.schema';
 
 @Injectable()
 export class PermisosService {

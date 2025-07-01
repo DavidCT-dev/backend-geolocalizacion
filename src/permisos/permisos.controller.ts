@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 import { PermisosService } from './permisos.service';
 import { ApiTags } from '@nestjs/swagger/dist/decorators';
 
