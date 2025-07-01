@@ -11,8 +11,7 @@ import { JornadaModule } from './jornada/jornada.module';
 @Module({
   imports: [
     ConfigModule.forRoot({isGlobal:true}),
-     MongooseModule.forRoot(process.env.MONGODB_URI_CLOUD || 'mongodb://localhost/geolocalizacion'),
-    
+     MongooseModule.forRoot(process.env.MONGODB_URI_CLOUD || 'mongodb://localhost/geolocalizacion'), 
     UserModule,
     AuthModule,
     RolesModule,

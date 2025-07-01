@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRutaDto } from './dto/create-ruta.dto';
-import { AsignacionDto } from './dto/create-asignacion.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Ruta, RutaDocument } from './schema/ruta.schema';
 import { Model } from 'mongoose';
