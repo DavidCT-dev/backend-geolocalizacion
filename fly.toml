@@ -1,4 +1,4 @@
-app = "nombre-de-tu-app"
+app = "deploy-backend-geolocalizacion"
 
 [build]
   builder = "heroku/buildpacks:20"
