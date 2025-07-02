@@ -10,8 +10,8 @@ WORKDIR /app
 # Copia los archivos de dependencias
 COPY package.json package-lock.json ./
 
-# Instala dependencias solo de producción
-RUN npm ci --omit=dev
+# ✅ Instala TODAS las dependencias (incluyendo dev) necesarias para compilar
+RUN npm ci -f
 
 # Copia el resto del proyecto
 COPY . .
@@ -19,7 +19,10 @@ COPY . .
 # Compila la aplicación NestJS
 RUN npm run build
 
-# Expone el puerto (asegúrate de que en tu main.ts uses process.env.PORT)
+# ✅ Elimina dependencias de desarrollo después de compilar (opcional, para reducir tamaño)
+RUN npm prune --omit=dev
+
+# Expone el puerto (asegúrate de usar process.env.PORT en main.ts)
 EXPOSE 3000
 
 # Inicia la app compilada
