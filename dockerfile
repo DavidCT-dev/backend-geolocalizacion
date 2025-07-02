@@ -1,29 +1,29 @@
-# Usa una imagen oficial ligera de Node.js
-FROM node:18-slim
+# ---------- ETAPA 1: build ----------
+FROM node:18-slim as builder
 
-# Instala herramientas necesarias para compilar dependencias nativas
 RUN apt-get update && apt-get install -y python3 g++ make && rm -rf /var/lib/apt/lists/*
-
-# Establece el directorio de trabajo
 WORKDIR /app
 
-# Copia los archivos de dependencias
 COPY package.json package-lock.json ./
+RUN npm ci
 
-# ✅ Instala TODAS las dependencias (incluyendo dev) necesarias para compilar
-RUN npm ci -f
-
-# Copia el resto del proyecto
 COPY . .
-
-# Compila la aplicación NestJS
 RUN npm run build
 
-# ✅ Elimina dependencias de desarrollo después de compilar (opcional, para reducir tamaño)
-RUN npm prune --omit=dev
+# ---------- ETAPA 2: producción ----------
+FROM node:18-slim as production
 
-# Expone el puerto (asegúrate de usar process.env.PORT en main.ts)
+WORKDIR /app
+
+# Solo copia lo necesario para correr
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+# Copia el código compilado desde la etapa anterior
+COPY --from=builder /app/dist ./dist
+
+# Copia cualquier otra cosa necesaria para runtime (como .env o archivos estáticos)
+COPY --from=builder /app/.env ./
+
 EXPOSE 3000
-
-# Inicia la app compilada
 CMD ["node", "dist/main.js"]
