@@ -60,8 +60,33 @@ export class RutasController {
 
 
   @Get('jornada/:id/:fecha')
-  getJornada(@Param('id') id: string,@Param('fecha') fecha: string) {
-    return this.rutasService.getJornada(id,fecha);
+  getJornada(@Param('id') id: string, @Param('fecha') fecha: string) {
+    return this.rutasService.getJornada(id, fecha);
+  }
+
+
+  @Post('asignaciones')
+  async deleteMultipleAsignaciones(
+    @Body() body: { ids: string[] }
+  ) {
+    return this.rutasService.deleteMultipleAsignaciones(body.ids);
+  }
+
+  @Put('asignacion/:id')
+  async updateAsignacion(
+    @Param('id') id: string,
+    @Body() body: any
+  ) {
+    console.log(body)
+    return this.rutasService.updateAsignacion(id, body);
+  }
+
+  @Get('lineas')
+  async getReportsLineas(
+    @Query('month') month: string,
+    @Query('lineaId') lineaId?: string
+  ) {
+    return this.rutasService.getReportsLineas(month, lineaId);
   }
 
 

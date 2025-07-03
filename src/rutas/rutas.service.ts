@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Ruta, RutaDocument } from './schema/ruta.schema';
 import { Model } from 'mongoose';
 import { Asignacion, AsignacionDocument } from './schema/asignacion.schema';
 import { Jornada, JornadaDocument } from '../jornada/schema/jornada.schema';
+import dayjs from 'dayjs';
 
 @Injectable()
 export class RutasService {
@@ -16,22 +17,17 @@ export class RutasService {
 
 
 
-  async asignarMultiples(asignacionesDto: any[]) {
+  async asignarMultiples(asignacionesDto: any) {
     const resultados = [];
     const asignacionesCreadas = [];
-    for (const asignacionDto of asignacionesDto) {
-      // Verificar si ya existe
-      const existe = await this.asignacionModel.findOne({
+    for (const asignacionDto of asignacionesDto.asignaciones) {
+      // Verifica si ya tiene una asignación ese día, sin importar la ruta
+      const yaAsignado = await this.asignacionModel.findOne({
         conductorId: asignacionDto.conductorId,
-        rutaId: asignacionDto.rutaId,
-        fecha: asignacionDto.fecha
+        fecha: asignacionDto.fecha,
       });
 
-      //para la misma fecha no se le puede asignar 2 lineas
-
-
-
-      if (!existe) {
+      if (!yaAsignado) {
         const nuevaAsignacion = new this.asignacionModel(asignacionDto);
         const guardada = await nuevaAsignacion.save();
         asignacionesCreadas.push(guardada);
@@ -43,18 +39,17 @@ export class RutasService {
       } else {
         resultados.push({
           success: false,
-          message: 'Asignación ya existente',
-          data: existe
+          message: `El conductor ya tiene una asignación para la fecha ${new Date(asignacionDto.fecha).toLocaleDateString()}`,
+          data: yaAsignado
         });
       }
     }
 
     return {
-      total: asignacionesDto.length,
-      creadas: asignacionesCreadas.length,
-      existentes: asignacionesDto.length - asignacionesCreadas.length,
-      detalles: resultados
+      creadas: asignacionesCreadas?.length || 0,
+      existentes: (asignacionesDto.asignaciones.length || 0) - (asignacionesCreadas?.length || 0),
     };
+
   }
 
   async listaAsignacion(fecha: string | Date, conductorId?: string) {
@@ -142,7 +137,7 @@ export class RutasService {
     if (createRutaDto.rutaAlternativaIda && Array.isArray(createRutaDto.rutaAlternativaIda[0]?.latitud)) {
       throw new Error('La ruta alternativa de ida debe ser un array simple de coordenadas');
     }
-    
+
     if (createRutaDto.rutaAlternativaVuelta && Array.isArray(createRutaDto.rutaAlternativaVuelta[0]?.latitud)) {
       throw new Error('La ruta alternativa de vuelta debe ser un array simple de coordenadas');
     }
@@ -160,7 +155,7 @@ export class RutasService {
     });
 
     return await nuevaRuta.save();
-}
+  }
 
   async findAll() {
     return await this.rutaModel.find({ deleted: false });
@@ -169,7 +164,7 @@ export class RutasService {
   async update(id: string, updateRutaDto: any): Promise<Ruta> {
     // Verificar si se está cambiando el nombre y si ya existe
     if (updateRutaDto.nombre) {
-      const existe = await this.rutaModel.findOne({ 
+      const existe = await this.rutaModel.findOne({
         nombre: updateRutaDto.nombre,
         _id: { $ne: id } // Excluir el documento actual
       });
@@ -187,7 +182,7 @@ export class RutasService {
     if (updateRutaDto.rutaAlternativaIda && Array.isArray(updateRutaDto.rutaAlternativaIda[0]?.latitud)) {
       throw new Error('La ruta alternativa de ida debe ser un array simple de coordenadas');
     }
-    
+
     if (updateRutaDto.rutaAlternativaVuelta && Array.isArray(updateRutaDto.rutaAlternativaVuelta[0]?.latitud)) {
       throw new Error('La ruta alternativa de vuelta debe ser un array simple de coordenadas');
     }
@@ -204,9 +199,9 @@ export class RutasService {
     const updatedRuta = await this.rutaModel.findByIdAndUpdate(
       id,
       { $set: updateData },
-      { 
-        new: true, 
-        runValidators: true 
+      {
+        new: true,
+        runValidators: true
       }
     ).exec();
 
@@ -215,7 +210,7 @@ export class RutasService {
     }
 
     return updatedRuta;
-}
+  }
 
 
   async remove(id: string) {
@@ -266,10 +261,87 @@ export class RutasService {
     };
   }
 
+  async deleteMultipleAsignaciones(ids: string[]) {
+    try {
+      const result = await this.asignacionModel.deleteMany({
+        _id: { $in: ids }
+      }).exec();
+
+      return {
+        success: true,
+        deletedCount: result.deletedCount,
+        message: `${result.deletedCount} asignación(es) eliminada(s) correctamente`
+      };
+    } catch (error) {
+      throw new Error(`Error al eliminar asignaciones: ${error.message}`);
+    }
+  }
+
+  async updateAsignacion(id: string, data: any) {
+    try {
+      // 1. Primero obtener la asignación existente
+      const asignacionExistente = await this.asignacionModel.findById(id).exec();
+
+      if (!asignacionExistente) {
+        throw new NotFoundException('Asignación no encontrada');
+      }
+      asignacionExistente.rutaId = data.rutaId._id
+
+      asignacionExistente.save()
+      return {
+        success: true,
+        data: asignacionExistente,
+        message: 'Asignación actualizada correctamente'
+      };
+
+    } catch (error) {
+      if (error instanceof NotFoundException || error instanceof ConflictException) {
+        throw error;
+      }
+      throw new BadRequestException(`Error al actualizar asignación: ${error.message}`);
+    }
+
+  }
 
 
+  async getReportsLineas(month: string, lineaId: string) {
+    if (!month || !/^\d{4}-\d{2}$/.test(month)) {
+      throw new BadRequestException('Formato de mes inválido. Use YYYY-MM');
+    }
 
+    // Buscar la línea si se proporcionó un ID
+    let linea = null;
+    if (lineaId) {
+      linea = await this.rutaModel.findById(lineaId).lean();
+      if (!linea) {
+        throw new NotFoundException('Línea no encontrada');
+      }
+    }
 
+    // Construir el query para las asignaciones
+    const query: any = {
+      fecha: {
+        $gte: new Date(`${month}-01`),
+        $lt: new Date(dayjs(`${month}-01`).endOf('month').toISOString())
+      }
+    };
+
+    if (lineaId) {
+      query.rutaId = lineaId;
+    }
+
+    // Obtener las asignaciones
+    const asignaciones = await this.asignacionModel.find(query)
+      .populate('conductorId', 'nombre')
+      .populate('rutaId', 'nombre')
+      .lean();
+
+    return {
+      linea,
+      asignaciones
+    };
+
+  }
 
 
 }

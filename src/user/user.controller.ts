@@ -87,4 +87,5 @@ export class UserController {
   ) {
     return this.userService.getAllReports(month, conductorId);
   }
+
 }

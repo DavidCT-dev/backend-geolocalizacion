@@ -41,6 +41,7 @@ export class UserService {
         ci: '12345678',
         email: 'admin@example.com',
         telefono: '70000000',
+        state:true,
         password: hashed,
         rol: rolAdmin._id  // Asignar rol administrador
       });
@@ -283,6 +284,10 @@ export class UserService {
       throw new BadRequestException('La contraseña debe tener al menos 8 caracteres');
     }
 
+    if (user.state==true) {
+      throw new BadRequestException('La cuenta ya ha sido confirmada');
+    }
+    
     // Hashear la nueva contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
     user.password = hashedPassword;
@@ -319,4 +324,6 @@ export class UserService {
       .populate('lineaId', 'nombre')
       .sort({ fecha: 1 });
   }
+
+
 }
