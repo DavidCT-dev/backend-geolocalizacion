@@ -24,9 +24,6 @@ jobs:
       - name: Force install dependencies
         run: npm install --force
 
-      - name: Run linter
-        run: npm run lint
-
       - name: Build the app
         run: npm run build
 

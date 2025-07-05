@@ -20,17 +20,11 @@ export class UserService {
     private readonly authService: AuthService,
     @InjectModel(ConfigurationApk.name) private configurationApkModel: Model<ConfigurationApkDocument>,
     @InjectModel(Jornada.name) private jornadaModel: Model<JornadaDocument>,
-
-
-    // private readonly authService: AuthService
-
   ) { }
 
   async defaultUser() {
-    // Buscar o crear el rol "administrador"
     let rolAdmin = await this.rolModel.findOne({ nombre: 'Administrador' });
 
-    // Crear usuario admin si no existe
     const exists = await this.userModel.findOne({ email: 'admin@example.com' });
 
     if (!exists) {
@@ -43,7 +37,7 @@ export class UserService {
         telefono: '70000000',
         state:true,
         password: hashed,
-        rol: rolAdmin._id  // Asignar rol administrador
+        rol: rolAdmin._id  
       });
 
     }
@@ -55,7 +49,6 @@ export class UserService {
   async create(createUserDto: CreateUserDto): Promise<User> {
     const { email, ci, ...rest } = createUserDto;
 
-    // Verificar si el correo ya está registrado
     const existingUser = await this.userModel.findOne({ email });
     if (existingUser) {
       throw new BadRequestException('El correo ya está registrado');
@@ -66,14 +59,12 @@ export class UserService {
       throw new BadRequestException('El CI ya esta registrado');
     }
 
-    // Crear nuevo usuario
     const newUser = new this.userModel({
       ...rest,
       ci,
       email,
     });
 
-    // 3. Generar token
     const payload = {
       id: newUser._id,
     };
@@ -96,7 +87,6 @@ export class UserService {
 
   async conductores() {
     const usuarios = await this.userModel.find().populate('rol');
-    // return usuarios.filter(usuario => (usuario.rol as any)?.nombre === 'Conductor');
     return usuarios.filter(
       usuario => /conductor/i.test((usuario.rol as any)?.nombre ?? '')
     );
@@ -116,28 +106,27 @@ export class UserService {
         path: 'rol',
         populate: {
           path: 'permisoIds',
-          select: 'nombre', // Opcional: solo traer el campo 'nombre'
+          select: 'nombre',
         },
       })
       .exec();
     if (!user) {
-      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      throw new NotFoundException(`Usuario no encontrado`);
     }
     return user;
   }
 
 
   async update(id: string, updateUserDto: any): Promise<User> {
-    console.log(id, updateUserDto)
 
     const updatedUser = await this.userModel.findByIdAndUpdate(
       id,
       updateUserDto,
-      { new: true } // `new: true` devuelve el documento actualizado
-    ).select('-password'); // no incluimos el password en la respuesta
+      { new: true } 
+    ).select('-password'); 
 
     if (!updatedUser) {
-      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      throw new NotFoundException(`Usuario no encontrado`);
     }
 
     return updatedUser;
@@ -147,7 +136,7 @@ export class UserService {
   async updateDriver(id: string, updateUserDto: any): Promise<any> {
     const user = await this.userModel.findById(id).select('-password').exec();;
     if (!user) {
-      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      throw new NotFoundException(`Usuario no encontrado`);
     }
     user.matricula = updateUserDto.matricula
     user.vehiculo = updateUserDto.vehiculo
@@ -163,7 +152,7 @@ export class UserService {
     // Buscar el usuario por ID
     const user = await this.userModel.findById(id);
     if (!user) {
-      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      throw new NotFoundException(`Usuario no encontrado`);
     }
 
     // Comparar la contraseña actual
@@ -188,7 +177,7 @@ export class UserService {
     const user = await this.userModel.findById(id);
 
     if (!user) {
-      throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      throw new NotFoundException(`Usuario no encontrado`);
     }
 
     user.deleted = true;

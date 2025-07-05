@@ -1,4 +1,3 @@
-# ---------- ETAPA 1: build ----------
 FROM node:18-slim as builder
 
 RUN apt-get update && apt-get install -y python3 g++ make && rm -rf /var/lib/apt/lists/*
@@ -11,7 +10,6 @@ COPY . .
 COPY .env ./          
 RUN npm run build
 
-# ---------- ETAPA 2: producción ----------
 FROM node:18-slim as production
 
 WORKDIR /app
