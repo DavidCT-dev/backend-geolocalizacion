@@ -8,7 +8,7 @@ import * as fs from 'fs';
 export class BackupService implements OnModuleInit {
   onModuleInit() {
     // ⚠️ Programado para ejecutarse cada minuto (para pruebas). Cambia a '0 2 * * *' para diario a las 2AM.
-    cron.schedule('*/5 * * * *', () => {
+    cron.schedule('0 * * * *', () => {
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
       // Ruta base para guardar backups (puede ser un volumen montado como /app/backups)
