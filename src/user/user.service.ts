@@ -224,6 +224,7 @@ export class UserService {
 
   async createRegisgroPasajeros(registro: any) {
 
+    console.log(registro)
     const hoy = new Date();
     hoy.setHours(0, 0, 0, 0);
 

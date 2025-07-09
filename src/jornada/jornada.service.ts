@@ -101,6 +101,7 @@ export class JornadaService {
     await jornada.save();
 
     return {
+      nombre:createJornadaDto.nombre,
       latitud,
       longitud,
       message: 'Jornada actualizada correctamente',
