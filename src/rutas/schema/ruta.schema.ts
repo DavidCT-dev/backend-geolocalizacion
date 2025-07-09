@@ -51,6 +51,9 @@ export class Ruta {
   deleted: boolean;
 
   @Prop({ default: false })
+  estadoRutaAlternativa: boolean;
+
+  @Prop({ default: false })
   tieneVuelta: boolean;
 }
 

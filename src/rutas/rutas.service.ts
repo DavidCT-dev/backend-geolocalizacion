@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { CreateRutaDto } from './dto/create-ruta.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Ruta, RutaDocument } from './schema/ruta.schema';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Asignacion, AsignacionDocument } from './schema/asignacion.schema';
 import { Jornada, JornadaDocument } from '../jornada/schema/jornada.schema';
 import dayjs from 'dayjs';
@@ -81,38 +81,52 @@ export class RutasService {
   }
 
   async obtenerLinea(fecha: string | Date, conductorId: string) {
+    // Convertir a objeto Date si es string
     const fechaObj = typeof fecha === 'string' ? new Date(fecha) : fecha;
-
-    // Normalizar a inicio del día en UTC
-    const inicioDelDia = new Date(Date.UTC(
-      fechaObj.getUTCFullYear(),
-      fechaObj.getUTCMonth(),
-      fechaObj.getUTCDate(),
-      0, 0, 0, 0
+    
+    // Asegurarse de que la fecha está en UTC
+    const fechaUTC = new Date(Date.UTC(
+        fechaObj.getFullYear(),
+        fechaObj.getMonth(),
+        fechaObj.getDate()
     ));
 
-    // Fin del día en UTC
-    const finDelDia = new Date(Date.UTC(
-      fechaObj.getUTCFullYear(),
-      fechaObj.getUTCMonth(),
-      fechaObj.getUTCDate(),
-      23, 59, 59, 999
-    ));
+    // Crear rango de fechas en UTC
+    const inicioDelDia = new Date(fechaUTC);
+    const finDelDia = new Date(fechaUTC);
+    finDelDia.setUTCHours(23, 59, 59, 999);
 
-    const filtro = {
-      fecha: { $gte: inicioDelDia, $lte: finDelDia },
-      conductorId,
-    };
+    console.log(fecha)
+    const conductor = await this.asignacionModel.findOne({
+       fecha: {
+            $gte: inicioDelDia.toISOString(),
+            $lte: finDelDia.toISOString()
+        },
+        conductorId: conductorId
+    })
+        .populate('conductorId', 'nombre ci')
+        .populate('rutaId', 'nombre rutaIda rutaVuelta paradas rutaAlternativaIda rutaAlternativaVuelta tieneVuelta estadoRutaAlternativa')
+        .exec();
 
-    return await this.asignacionModel.findOne(filtro)
-      .populate('conductorId', 'nombre ci')
-      .populate('rutaId', 'nombre rutas paradas')
-      .exec();
+    console.log(conductor)
+
+    return conductor;
+}
+
+
+
+ async updateRutaAlternativa(id: string, estado: boolean): Promise<Ruta> {
+    const updatedRuta = await this.rutaModel.findByIdAndUpdate(
+      id,
+      { estadoRutaAlternativa: estado },
+      { new: true }
+    ).exec();
+
+    if (!updatedRuta) {
+      throw new NotFoundException(`Ruta con ID ${id} no encontrada`);
+    }
+    return updatedRuta;
   }
-
-
-
-
 
 
 

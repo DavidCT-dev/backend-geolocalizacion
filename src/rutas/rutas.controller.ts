@@ -89,5 +89,12 @@ export class RutasController {
     return this.rutasService.getReportsLineas(month, lineaId);
   }
 
+  @Put(':id/alternativa')
+  async toggleRutaAlternativa(
+    @Param('id') id: string,
+    @Body() updateData: { estadoRutaAlternativa: boolean }
+  ) {
+    return this.rutasService.updateRutaAlternativa(id, updateData.estadoRutaAlternativa);
+  }
 
 }

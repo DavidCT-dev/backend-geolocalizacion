@@ -7,6 +7,7 @@ import { RolesModule } from './roles/roles.module';
 import { PermisosModule } from './permisos/permisos.module';
 import { RutasModule } from './rutas/rutas.module';
 import { JornadaModule } from './jornada/jornada.module';
+import { BackupModule } from './backup/backup.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { JornadaModule } from './jornada/jornada.module';
     PermisosModule,
     RutasModule,
     JornadaModule,
+    BackupModule
   ],
   controllers: [],
   providers: [
